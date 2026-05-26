@@ -49,7 +49,7 @@ export type TrelloWebhookPayload = {
       card?: { id: string; name?: string; desc?: string };
       listAfter?: { id: string; name: string };
       listBefore?: { id: string; name: string };
-      old?: { dueComplete?: boolean };
+      old?: { dueComplete?: boolean; idList?: string };
     };
   };
   model?: unknown;

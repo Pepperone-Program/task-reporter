@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { config } from "../config.js";
+import { logger } from "../utils/logger.js";
 
 type Group = {
   id?: string;
@@ -40,8 +41,19 @@ export class WApiClient {
     };
 
     try {
+      logger.info("Chamando endpoint send-text da W-API", {
+        path,
+        instanceId: config.W_API_INSTANCE_ID,
+        phone: groupId,
+        messageLength: message.length,
+        delayMessage: config.W_API_DELAY_MESSAGE,
+      });
       const { data } = await this.http.post(path, body, {
         params: { instanceId: config.W_API_INSTANCE_ID },
+      });
+      logger.info("W-API aceitou mensagem", {
+        phone: groupId,
+        response: data,
       });
       return data;
     } catch (error) {

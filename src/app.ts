@@ -10,6 +10,7 @@ import { TaskReporter } from "./services/taskReporter.js";
 import { TrelloClient } from "./services/trelloClient.js";
 import { WApiClient } from "./services/wApiClient.js";
 import { swaggerDocument } from "./swagger.js";
+import { logger } from "./utils/logger.js";
 
 export function createApp() {
   const app = express();
@@ -18,6 +19,10 @@ export function createApp() {
   const sentStore = new SentStore();
   const queue = new MessageQueue(wApiClient);
   const taskReporter = new TaskReporter(trelloClient, queue, sentStore);
+  queue.setHandlers({
+    onSucceeded: (job) => taskReporter.handleJobSucceeded(job),
+    onFailed: (job) => taskReporter.handleJobFailed(job),
+  });
 
   app.use(helmet());
   app.use(cors());
@@ -64,11 +69,13 @@ export function createApp() {
 
       if (body.cardId) {
         const result = await taskReporter.enqueueCardById(body.cardId, body.force);
+        logger.info("Requisicao manual de envio processada", { cardId: body.cardId, force: body.force, result });
         res.status(202).json(result);
         return;
       }
 
       const result = await taskReporter.enqueueCompletedCards(body.force);
+      logger.info("Requisicao manual de envio em lote processada", { force: body.force, result });
       res.status(202).json(result);
     } catch (error) {
       next(error);
@@ -86,6 +93,7 @@ export function createApp() {
   app.post("/webhooks/trello", async (req, res, next) => {
     try {
       const result = await taskReporter.handleWebhook(req.body);
+      logger.info("Resultado do processamento do webhook do Trello", result);
       res.status(202).json(result);
     } catch (error) {
       next(error);
@@ -100,10 +108,12 @@ export function createApp() {
 
 function errorHandler(error: unknown, _req: Request, res: Response, _next: NextFunction) {
   if (error instanceof z.ZodError) {
+    logger.warn("Erro de validacao na API", { issues: error.issues });
     res.status(400).json({ error: "Validacao falhou", issues: error.issues });
     return;
   }
 
   const message = error instanceof Error ? error.message : "Erro inesperado";
+  logger.error("Erro nao tratado na API", { error: message });
   res.status(500).json({ error: message });
 }
