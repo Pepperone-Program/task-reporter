@@ -77,6 +77,7 @@ curl --request POST "https://api.trello.com/1/webhooks/?callbackURL=https://sua-
 ## W-API
 
 Configure `W_API_GROUP_IDS` com multiplos grupos separados por virgula.
+Use os IDs reais dos grupos, no formato `12036322036366919144@g.us`. Valores como `grupo-1@g.us` e `grupo-2@g.us` sao apenas exemplos e nao entregam mensagens em grupos reais.
 
 O envio de mensagem usa o endpoint oficial:
 
@@ -89,12 +90,14 @@ Content-Type: application/json
 Body:
 
 ```json
-{
-  "phone": "12036322036366919144@g.us",
-  "message": "*Tarefa Concluída*\nTitulo\n\nDescricao",
-  "delayMessage": 1
-}
+    {
+      "phone": "12036322036366919144@g.us",
+      "message": "*Tarefa Concluída*\nTitulo\n\nDescricao",
+      "delayMessage": 1
+    }
 ```
+
+Quando a W-API responde com `messageId` e `insertedId`, ela aceitou a mensagem na fila. A entrega final depende da instancia estar conectada e do `phone` ser um contato/grupo valido para essa instancia.
 
 Se a W-API alterar alguma rota, ajuste:
 

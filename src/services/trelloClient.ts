@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { config } from "../config.js";
 import { CompletedCard, TrelloBoard, TrelloCard, TrelloList } from "../types.js";
-import { normalizeText } from "../utils/text.js";
+import { isDoneListName } from "../utils/trelloCompletion.js";
 
 export class TrelloClient {
   private readonly http: AxiosInstance;
@@ -55,12 +55,11 @@ export class TrelloClient {
   async listCompletedCards(): Promise<CompletedCard[]> {
     const [lists, cards] = await Promise.all([this.getBoardLists(), this.getBoardCards()]);
     const listById = new Map(lists.map((list) => [list.id, list]));
-    const doneListNames = new Set(config.TRELLO_DONE_LIST_NAMES.map(normalizeText));
 
     return cards
       .map((card) => {
         const list = listById.get(card.idList);
-        const isDoneList = list ? doneListNames.has(normalizeText(list.name)) : false;
+        const isDoneList = list ? isDoneListName(list.name, config.TRELLO_DONE_LIST_NAMES) : false;
         const completedBy = isDoneList ? "list" : card.dueComplete ? "dueComplete" : undefined;
 
         if (!completedBy || !list) {

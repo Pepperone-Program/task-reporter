@@ -1,7 +1,8 @@
 import { config } from "../config.js";
 import { CompletedCard, QueueJob, TrelloCard, TrelloWebhookPayload } from "../types.js";
 import { logger } from "../utils/logger.js";
-import { formatCompletedTaskMessage, normalizeText } from "../utils/text.js";
+import { formatCompletedTaskMessage } from "../utils/text.js";
+import { isDoneListName } from "../utils/trelloCompletion.js";
 import { MessageQueue } from "./messageQueue.js";
 import { SentStore } from "./sentStore.js";
 import { TrelloClient } from "./trelloClient.js";
@@ -64,11 +65,10 @@ export class TaskReporter {
       return { accepted: false, reason: "Payload sem card" };
     }
 
-    const doneNames = new Set(config.TRELLO_DONE_LIST_NAMES.map(normalizeText));
     const movedToDone =
       action.type === "updateCard" &&
       action.data.listAfter?.name &&
-      doneNames.has(normalizeText(action.data.listAfter.name));
+      isDoneListName(action.data.listAfter.name, config.TRELLO_DONE_LIST_NAMES);
     const markedDueComplete =
       action.type === "updateCard" && action.data.old?.dueComplete === false;
 

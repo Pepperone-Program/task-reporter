@@ -14,6 +14,32 @@ const commaList = z
       .filter(Boolean),
   );
 
+const groupIdList = commaList.pipe(
+  z
+    .array(z.string())
+    .superRefine((groups, ctx) => {
+      const placeholders = new Set(["grupo-1@g.us", "grupo-2@g.us"]);
+
+      groups.forEach((groupId, index) => {
+        if (placeholders.has(groupId.toLowerCase())) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Substitua o valor de exemplo pelo ID real do grupo da W-API.",
+            path: [index],
+          });
+        }
+
+        if (!/^[A-Za-z0-9._:-]+@g\.us$/.test(groupId)) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Use um ID de grupo valido no formato 123456789012345@g.us.",
+            path: [index],
+          });
+        }
+      });
+    }),
+);
+
 const envSchema = z.object({
   NODE_ENV: z.string().default("development"),
   PORT: z.coerce.number().int().positive().default(3000),
@@ -28,7 +54,7 @@ const envSchema = z.object({
   W_API_INSTANCE_ID: z.string().min(1),
   W_API_TOKEN: z.string().optional().default(""),
   W_API_KEY: z.string().optional().default(""),
-  W_API_GROUP_IDS: commaList,
+  W_API_GROUP_IDS: groupIdList,
   W_API_DELAY_MESSAGE: z.coerce.number().int().min(1).max(15).default(1),
   W_API_GROUPS_PATH: z.string().default("/instances/{instanceId}/groups"),
   W_API_SEND_TEXT_PATH: z.string().default("/message/send-text"),
