@@ -114,16 +114,16 @@ export class TaskReporter {
       cardId: job.cardId,
       groupId: job.groupId,
       successfulGroups: successfulGroups.size,
-      expectedGroups: config.W_API_GROUP_IDS.length,
+      expectedGroups: config.WASENDER_GROUP_IDS.length,
     });
 
-    if (config.W_API_GROUP_IDS.every((groupId) => successfulGroups.has(groupId))) {
-      await this.sentStore.markSent(job.cardId, config.W_API_GROUP_IDS);
+    if (config.WASENDER_GROUP_IDS.every((groupId) => successfulGroups.has(groupId))) {
+      await this.sentStore.markSent(job.cardId, config.WASENDER_GROUP_IDS);
       this.inFlightCards.delete(job.cardId);
       this.successfulGroupsByCard.delete(job.cardId);
       logger.info("Card marcado como enviado apos sucesso em todos os grupos", {
         cardId: job.cardId,
-        groups: config.W_API_GROUP_IDS,
+        groups: config.WASENDER_GROUP_IDS,
       });
     }
   }
@@ -138,8 +138,8 @@ export class TaskReporter {
   }
 
   private async enqueueCard(card: TrelloCard, force = false): Promise<boolean> {
-    if (config.W_API_GROUP_IDS.length === 0) {
-      throw new Error("Configure W_API_GROUP_IDS com pelo menos um grupo.");
+    if (config.WASENDER_GROUP_IDS.length === 0) {
+      throw new Error("Configure WASENDER_GROUP_IDS com pelo menos um grupo.");
     }
 
     if (!force && (await this.sentStore.has(card.id))) {
@@ -159,11 +159,11 @@ export class TaskReporter {
     logger.info("Enfileirando card concluido para WhatsApp", {
       cardId: card.id,
       cardName: card.name,
-      groups: config.W_API_GROUP_IDS,
+      groups: config.WASENDER_GROUP_IDS,
       messageLength: message.length,
     });
 
-    for (const groupId of config.W_API_GROUP_IDS) {
+    for (const groupId of config.WASENDER_GROUP_IDS) {
       this.queue.add({ cardId: card.id, groupId, message });
     }
     return true;

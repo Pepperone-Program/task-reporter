@@ -24,7 +24,7 @@ const groupIdList = commaList.pipe(
         if (placeholders.has(groupId.toLowerCase())) {
           ctx.addIssue({
             code: "custom",
-            message: "Substitua o valor de exemplo pelo ID real do grupo da W-API.",
+            message: "Substitua o valor de exemplo pelo JID real do grupo da Wasender.",
             path: [index],
           });
         }
@@ -50,14 +50,11 @@ const envSchema = z.object({
   TRELLO_DONE_LIST_NAMES: commaList,
   TRELLO_CALLBACK_URL: z.string().url().optional().or(z.literal("")).default(""),
   TRELLO_WEBHOOK_DESCRIPTION: z.string().default("task-reporter-board-webhook"),
-  W_API_BASE_URL: z.string().url().default("https://api.w-api.app/v1"),
-  W_API_INSTANCE_ID: z.string().min(1),
-  W_API_TOKEN: z.string().optional().default(""),
-  W_API_KEY: z.string().optional().default(""),
-  W_API_GROUP_IDS: groupIdList,
-  W_API_DELAY_MESSAGE: z.coerce.number().int().min(1).max(15).default(1),
-  W_API_GROUPS_PATH: z.string().default("/instances/{instanceId}/groups"),
-  W_API_SEND_TEXT_PATH: z.string().default("/message/send-text"),
+  WASENDER_BASE_URL: z.string().url().default("https://www.wasenderapi.com"),
+  WASENDER_ACCESS_TOKEN: z.string().min(1),
+  WASENDER_GROUP_IDS: groupIdList,
+  WASENDER_GROUPS_PATH: z.string().default("/api/groups"),
+  WASENDER_SEND_TEXT_PATH: z.string().default("/api/send-message"),
   QUEUE_CONCURRENCY: z.coerce.number().int().positive().default(1),
   QUEUE_RETRIES: z.coerce.number().int().min(0).default(3),
   QUEUE_RETRY_DELAY_MS: z.coerce.number().int().min(0).default(1500),

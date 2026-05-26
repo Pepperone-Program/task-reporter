@@ -1,7 +1,7 @@
 import { config } from "../config.js";
 import { QueueJob } from "../types.js";
 import { logger } from "../utils/logger.js";
-import { WApiClient } from "./wApiClient.js";
+import { WasenderClient } from "./wasenderClient.js";
 
 type QueuePayload = {
   cardId: string;
@@ -20,7 +20,7 @@ export class MessageQueue {
   private activeCount = 0;
   private handlers: QueueHandlers = {};
 
-  constructor(private readonly wApiClient: WApiClient) {}
+  constructor(private readonly wasenderClient: WasenderClient) {}
 
   setHandlers(handlers: QueueHandlers): void {
     this.handlers = handlers;
@@ -88,7 +88,7 @@ export class MessageQueue {
 
     for (let attempt = 1; attempt <= config.QUEUE_RETRIES + 1; attempt += 1) {
       job.attempts = attempt;
-      logger.info("Tentando enviar mensagem pela W-API", {
+      logger.info("Tentando enviar mensagem pela Wasender", {
         jobId: job.id,
         cardId: job.cardId,
         groupId: job.groupId,
@@ -96,11 +96,11 @@ export class MessageQueue {
       });
 
       try {
-        await this.wApiClient.sendGroupMessage(payload.groupId, payload.message);
+        await this.wasenderClient.sendGroupMessage(payload.groupId, payload.message);
         job.status = "succeeded";
         job.error = undefined;
         job.updatedAt = new Date().toISOString();
-        logger.info("Mensagem enviada com sucesso pela W-API", {
+        logger.info("Mensagem enviada com sucesso pela Wasender", {
           jobId: job.id,
           cardId: job.cardId,
           groupId: job.groupId,
@@ -111,7 +111,7 @@ export class MessageQueue {
       } catch (error) {
         job.error = error instanceof Error ? error.message : "Erro desconhecido";
         job.updatedAt = new Date().toISOString();
-        logger.error("Falha ao enviar mensagem pela W-API", {
+        logger.error("Falha ao enviar mensagem pela Wasender", {
           jobId: job.id,
           cardId: job.cardId,
           groupId: job.groupId,

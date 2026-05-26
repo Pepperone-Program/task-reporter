@@ -12,10 +12,9 @@ app.listen(config.PORT, async () => {
     trelloBoardId: config.TRELLO_BOARD_ID,
     trelloCallbackUrl: config.TRELLO_CALLBACK_URL || null,
     trelloDoneListNames: config.TRELLO_DONE_LIST_NAMES,
-    wApiBaseUrl: config.W_API_BASE_URL,
-    wApiSendTextPath: config.W_API_SEND_TEXT_PATH,
-    wApiInstanceId: config.W_API_INSTANCE_ID,
-    wApiGroups: config.W_API_GROUP_IDS,
+    wasenderBaseUrl: config.WASENDER_BASE_URL,
+    wasenderSendTextPath: config.WASENDER_SEND_TEXT_PATH,
+    wasenderGroups: config.WASENDER_GROUP_IDS,
     queueConcurrency: config.QUEUE_CONCURRENCY,
     queueRetries: config.QUEUE_RETRIES,
   });

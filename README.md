@@ -26,7 +26,7 @@ http://localhost:3000/docs
 
 ## Endpoints
 
-- `GET /groups`: lista grupos via W-API.
+- `GET /groups`: lista grupos via Wasender.
 - `GET /boards`: lista boards do Trello acessiveis pelo token.
 - `GET /cards/completed`: mostra cards concluidos no board configurado.
 - `POST /tasks/send`: enfileira envio de um card especifico ou de todos os concluidos.
@@ -74,15 +74,15 @@ curl --request POST "https://api.trello.com/1/webhooks/?callbackURL=https://sua-
   --header "Accept: application/json"
 ```
 
-## W-API
+## Wasender
 
-Configure `W_API_GROUP_IDS` com multiplos grupos separados por virgula.
+Configure `WASENDER_GROUP_IDS` com multiplos grupos separados por virgula.
 Use os IDs reais dos grupos, no formato `12036322036366919144@g.us`. Valores como `grupo-1@g.us` e `grupo-2@g.us` sao apenas exemplos e nao entregam mensagens em grupos reais.
 
 O envio de mensagem usa o endpoint oficial:
 
 ```text
-POST https://api.w-api.app/v1/message/send-text?instanceId=INSTANCE_ID
+POST https://www.wasenderapi.com/api/send-message
 Authorization: Bearer TOKEN
 Content-Type: application/json
 ```
@@ -90,18 +90,22 @@ Content-Type: application/json
 Body:
 
 ```json
-    {
-      "phone": "12036322036366919144@g.us",
-      "message": "*Tarefa Concluída*\nTitulo\n\nDescricao",
-      "delayMessage": 1
-    }
+{
+  "to": "12036322036366919144@g.us",
+  "text": "*Tarefa Concluída*\nTitulo\n\nDescricao"
+}
 ```
 
-Quando a W-API responde com `messageId` e `insertedId`, ela aceitou a mensagem na fila. A entrega final depende da instancia estar conectada e do `phone` ser um contato/grupo valido para essa instancia.
+Quando a Wasender responde com `success: true`, ela aceitou o envio. A entrega final depende da sessao estar conectada e do `to` ser um contato/grupo valido para essa sessao.
 
-Se a W-API alterar alguma rota, ajuste:
+Para listar grupos, a aplicacao usa:
 
-- `W_API_GROUPS_PATH`
-- `W_API_SEND_TEXT_PATH`
+```text
+GET https://www.wasenderapi.com/api/groups
+Authorization: Bearer TOKEN
+```
 
-Os placeholders aceitos sao `{instanceId}` e `{groupId}`.
+Se a Wasender alterar alguma rota, ajuste:
+
+- `WASENDER_GROUPS_PATH`
+- `WASENDER_SEND_TEXT_PATH`

@@ -15,7 +15,7 @@ export const swaggerDocument = {
     },
     "/groups": {
       get: {
-        summary: "Listar grupos do WhatsApp via W-API",
+        summary: "Listar grupos do WhatsApp via Wasender",
         responses: { "200": { description: "Lista de grupos" } },
       },
     },

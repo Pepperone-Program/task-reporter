@@ -8,16 +8,16 @@ import { MessageQueue } from "./services/messageQueue.js";
 import { SentStore } from "./services/sentStore.js";
 import { TaskReporter } from "./services/taskReporter.js";
 import { TrelloClient } from "./services/trelloClient.js";
-import { WApiClient } from "./services/wApiClient.js";
+import { WasenderClient } from "./services/wasenderClient.js";
 import { swaggerDocument } from "./swagger.js";
 import { logger } from "./utils/logger.js";
 
 export function createApp() {
   const app = express();
   const trelloClient = new TrelloClient();
-  const wApiClient = new WApiClient();
+  const wasenderClient = new WasenderClient();
   const sentStore = new SentStore();
-  const queue = new MessageQueue(wApiClient);
+  const queue = new MessageQueue(wasenderClient);
   const taskReporter = new TaskReporter(trelloClient, queue, sentStore);
   queue.setHandlers({
     onSucceeded: (job) => taskReporter.handleJobSucceeded(job),
@@ -36,7 +36,7 @@ export function createApp() {
 
   app.get("/groups", async (_req, res, next) => {
     try {
-      res.json({ groups: await wApiClient.listGroups() });
+      res.json({ groups: await wasenderClient.listGroups() });
     } catch (error) {
       next(error);
     }
